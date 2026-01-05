@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>♡</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  font-family: "Press Start 2P", system-ui;
+  background: radial-gradient(circle at top, #1a0f16, #0b070a);
+  color: #ffd6ea;
+  overflow: hidden;
+}
+
+/* pixel overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,182,221,0.07) 0px,
+      rgba(255,182,221,0.07) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,182,221,0.07) 0px,
+      rgba(255,182,221,0.07) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  pointer-events: none;
+}
+
+/* floating hearts */
+.heart {
+  position: fixed;
+  font-family: "Press Start 2P";
+  color: #ff8fbe;
+  pointer-events: none;
+  opacity: .85;
+  z-index: 9999;
+  animation: floatUp linear forwards;
+}
+
+@keyframes floatUp {
+  from { transform: translateY(0); opacity: 0; }
+  15% { opacity: .85; }
+  to { transform: translateY(-280px); opacity: 0; }
+}
+
+/* intro */
+#intro {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.intro-text {
+  font-size: 9px;
+  opacity: .9;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.intro-heart {
+  font-size: 22px;
+  color: #ff8fbe;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* app */
+#app {
+  max-width: 820px;
+  margin: auto;
+  padding: 24px;
+  display: none;
+}
+
+.nav-btn {
+  font-size: 8px;
+  cursor: pointer;
+  opacity: .8;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.month-title {
+  font-size: 11px;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-size: 7px;
+  text-align: center;
+  opacity: .6;
+  margin-bottom: 6px;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day {
+  aspect-ratio: 1 / 1;
+  background: rgba(255,182,221,0.08);
+  border: 2px solid rgba(255,182,221,0.25);
+  box-shadow: 2px 2px 0 #000;
+  position: relative;
+}
+
+.day-number {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  font-size: 7px;
+  opacity: .7;
+}
+
+.heart-btn {
+  position: absolute;
+  bottom: 5px;
+  right: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ff8fbe;
+}
+
+.future .heart-btn {
+  opacity: .35;
+  cursor: default;
+}
+
+/* birthday highlight */
+.birthday {
+  border-color: #ff8fbe;
+  box-shadow: 0 0 10px rgba(255,143,190,0.7);
+}
+
+/* note overlay */
+#note {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.note-card {
+  background: #12080e;
+  border: 2px solid #ff8fbe;
+  box-shadow: 3px 3px 0 #000;
+  padding: 18px;
+  max-width: 360px;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  font-family: "Pixelify Sans", system-ui;
+}
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+  <div>
+    <div class="intro-text">i love you so much parth.</div>
+    <div class="intro-heart" onclick="enter()">♡</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="nav-btn" onclick="goHome()" style="margin-bottom:10px;">← back</div>
+
+  <div class="header">
+    <div class="nav-btn" onclick="prevMonth()">←</div>
+    <div class="month-title" id="monthTitle"></div>
+    <div class="nav-btn" onclick="nextMonth()">→</div>
+  </div>
+
+  <div class="weekdays">
+    <div>sun</div><div>mon</div><div>tue</div>
+    <div>wed</div><div>thu</div><div>fri</div><div>sat</div>
+  </div>
+
+  <div class="calendar" id="calendar"></div>
+</div>
+
+<!-- NOTE -->
+<div id="note" onclick="closeNote()">
+  <div class="note-card" id="noteText"></div>
+</div>
+
+<script>
+const year = 2026;
+let currentMonth = 0;
+let heartInterval = null;
+
+const monthNames = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
+];
+
+const messages = {
+"2026-01-01": `this year begins with your name resting quietly in my mouth,
+like the first soft note of a song i’m learning to hum without shaking.
+i want to love you gently, the way candlelight touches old pages,
+but i already know my heart will love you boldly,
+like city lights spilling across a midnight river,
+if time is a door with a brass knob warmed by countless hands,
+i’m already turning it, stepping into the room where you wait.`,
+
+"2026-01-02": `your laugh from last week still echoes softly inside me,
+like a favorite song caught in an old vinyl groove, spinning warm and endless.
+i play it back in quiet moments,
+letting its bright notes flood the room the way sunlight pours through half-open curtains,
+dust motes dancing in the sudden gold.
+it tricks my heart into believing you’re just around the corner,
+humming along.`,
+
+"2026-01-03": `today i caught myself smiling at nothing.
+it was your doing.
+your memory slipped into the empty chair beside me,
+as real as the faint scent of cologne lingering in a borrowed jacket.
+i wanted to reach across the space,
+let our fingers brush like pages turning in the same book.
+instead i leaned my forehead against the cool window glass,
+breath fogging softly,
+writing your name and watching it fade away.`,
+
+"2026-01-04": `the moon tonight is a bright coin tossed across my ceiling,
+its cool silver light pooling on my sheets like spilled milk.
+i lie awake tracing the blanket over me,
+turning them into quiet maps that all lead to you.
+every flicker from the streetlamp outside
+feels like a message you haven’t sent yet.`,
+
+"2026-01-05": `you slip into the quiet spaces between my thoughts today,
+like a bookmark tucked gently into the page i’m reading.
+your voice lingers in my earphones long after the song ends,
+a soft static hum that feels warmer than silence ever could.`,
+
+"2026-01-06": `i save the last sip of coffee for you sometimes,
+letting it linger on my tongue like the final chord of a slow song.`,
+
+"2026-01-07": `i want to draw you close with just a look,
+until your pulse answers only to my rhythm.`,
+
+"2026-01-08": `there’s a quiet corner in my mind i’ve reserved just for you,
+a small dimly lit room where everything feels safe.`
+};
+
+function enter() {
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  renderMonth();
+}
+
+function goHome() {
+  document.getElementById("app").style.display = "none";
+  document.getElementById("intro").style.display = "flex";
+}
+
+function renderMonth() {
+  const cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+  document.getElementById("monthTitle").textContent = monthNames[currentMonth] + " " + year;
+
+  const first = new Date(year, currentMonth, 1);
+  const last = new Date(year, currentMonth + 1, 0);
+
+  for (let i = 0; i < first.getDay(); i++) {
+    cal.appendChild(document.createElement("div"));
+  }
+
+  for (let d = 1; d <= last.getDate(); d++) {
+    const date = new Date(year, currentMonth, d);
+    const key = `${year}-${String(currentMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+
+    const cell = document.createElement("div");
+    cell.className = "day";
+
+    if (currentMonth === 3 && d === 11) cell.classList.add("birthday");
+
+    cell.innerHTML = `<div class="day-number">${d}</div>`;
+
+    if (messages[key]) {
+      const h = document.createElement("div");
+      h.className = "heart-btn";
+      h.textContent = "♡";
+      h.onclick = () => openNote(messages[key]);
+      cell.appendChild(h);
+    }
+
+    cal.appendChild(cell);
+  }
+}
+
+function openNote(text) {
+  document.getElementById("noteText").textContent = text;
+  document.getElementById("note").style.display = "flex";
+  heartBurstOverNote();
+  heartInterval = setInterval(heartBurstOverNote, 2400);
+}
+
+function closeNote() {
+  document.getElementById("note").style.display = "none";
+  clearInterval(heartInterval);
+}
+
+function heartBurstOverNote() {
+  const card = document.querySelector(".note-card");
+  const r = card.getBoundingClientRect();
+
+  for (let i = 0; i < 14; i++) {
+    setTimeout(() => {
+      const h = document.createElement("div");
+      h.className = "heart";
+      h.textContent = "♡";
+      h.style.left = (r.left + Math.random() * r.width) + "px";
+      h.style.top = (r.top + Math.random() * r.height) + "px";
+      h.style.fontSize = (10 + Math.random()*8) + "px";
+      h.style.animationDuration = (6 + Math.random()*3) + "s";
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 9000);
+    }, i * 140);
+  }
+}
+
+function prevMonth(){ if(currentMonth>0){currentMonth--;renderMonth();}}
+function nextMonth(){ if(currentMonth<11){currentMonth++;renderMonth();}}
+</script>
+
+</body>
+</html>
