@@ -27,21 +27,20 @@ body::before{
   pointer-events:none;
 }
 
-/* hearts */
+/* floating hearts */
 .heart{
   position:fixed;
   font-family:"Press Start 2P";
   color:#ff8fbe;
   pointer-events:none;
   z-index:9999;
-  opacity:.85;
   animation:floatUp linear forwards;
 }
 
 @keyframes floatUp{
   from{transform:translateY(0);opacity:0}
-  15%{opacity:.85}
-  to{transform:translateY(-300px);opacity:0}
+  20%{opacity:.9}
+  to{transform:translateY(-320px);opacity:0}
 }
 
 /* intro */
@@ -103,13 +102,8 @@ body::before{
   color:#ff8fbe;
 }
 
-.locked{
-  opacity:.35;
-}
-
-.clickable{
-  cursor:pointer;
-}
+.locked{opacity:.35}
+.clickable{cursor:pointer}
 
 /* birthday */
 .birthday{
@@ -121,7 +115,7 @@ body::before{
 #note{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.6);
+  background:rgba(0,0,0,.65);
   display:none;
   align-items:center;
   justify-content:center;
@@ -133,7 +127,7 @@ body::before{
   border:2px solid #ff8fbe;
   box-shadow:3px 3px 0 #000;
   padding:18px;
-  max-width:380px;
+  max-width:420px;
   font-family:"Pixelify Sans",system-ui;
   font-size:12px;
   line-height:1.7;
@@ -173,19 +167,19 @@ body::before{
 </div>
 
 <script>
-const year=2026;
-let month=0;
-let heartTimer=null;
-const today=new Date();
+const year = 2026;
+let month = 0;
+let heartTimer = null;
+const today = new Date();
 
-const months=[
-"January","February","March","April","May","June",
-"July","August","September","October","November","December"
+const months = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
 ];
 
-const messages={
+const messages = {
 "2026-01-01":`this year begins with your name resting quietly in my mouth, like the first soft note of a song i’m learning to hum without shaking. i want to love you gently, the way candlelight touches old pages, but i already know my heart will love you boldly,
-like city lights spilling across a midnight river. if time is a door with a brass knob warmed by countless hands, i’m already turning it, stepping into the room where you wait.`,
+like city lights spilling across a midnight river, fearless and bright. if time is a door with a brass knob warmed by countless hands, i’m already turning it, stepping into the room where you wait.`,
 
 "2026-01-02":`your laugh from last week still echoes softly inside me, like a favorite song caught in an old vinyl groove, spinning warm and endless. i play it back in quiet moments, letting its bright notes flood the room the way sunlight pours through half-open curtains, dust motes dancing in the sudden gold. it tricks my heart into believing you’re just around the corner, humming along.`,
 
@@ -198,7 +192,7 @@ i pause in the middle of everything with the city noise muffled outside the wind
 and small as the glow of my phone screen when your name appears.`,
 
 "2026-01-06":`i save the last sip of coffee for you sometimes, letting it linger on my tongue like the final chord of a slow song. the bitterness softens into something warmer,
-almost like the low hum of your voice through my earphones late at night. i like holding that small, dark warmth a second longer, pretending the steam curling up carries your name, straight to the ceiling where my quiet wishes collect. silly, maybe, but it keeps the morning gentle.`,
+almost like the low hum of your voice through my earphones late at night. i like holding that small, dark warmth a second longer, pretending the steam curling up carries your name , straight to the ceiling where my quiet wishes collect. silly, maybe, but it keeps the morning gentle.`,
 
 "2026-01-07":`i want to draw you close with just a look, until your pulse answers only to my rhythm, my fingers threading slow through your hair, so you feel the quiet weight of my claim. i’ll trace the line of your jaw like i’m memorizing a secret, leaning in until your surrender tastes like the softest yes against my lips.`,
 
@@ -246,7 +240,50 @@ loving you changed the way i look at the world.`,
 where nothing usually stays.
 you made a home out of quiet,
 set your name gently inside my ribs.
-now even silence knows where to return.`
+now even silence knows where to return.`,
+
+"2026-01-16":`were my heart a river, you’d teach it how to run,
+pulling it gently toward open light.
+every bend would learn your name.
+even the still parts would move for you.
+i would reach the sea believing in us.`,
+
+"2026-01-17":`we orbit each other like we were born that way,
+two worlds refusing to let go
+the distance never scares me
+only makes the pull sweeter.
+even the cold feels gentle when you’re near.
+if the universe forgot us, i’d still choose you, circling me forever.`,
+
+"2026-01-18":`you move like the sea never learned restraint,
+laughing where the edge meets the fall.
+i wait where light refuses to give up,
+and somehow you always return there.
+everything else feels temporary,
+except you and me, standing too close to the edge.`,
+
+"2026-01-19":`they say a red thread survives every distance,
+thinning, fraying, never letting go.
+we don’t stop to name what we feel,
+and with each step it draws us closer.
+somewhere ahead, our hands remember what to do.`,
+
+"2026-01-20":`the sky keeps us patient.
+night after night, we learn how to wait.
+we stand on opposite sides of longing,
+treating the dark like it’s merciful.
+when the stars finally allow it, we meet.`,
+
+"2026-01-21":`they say swans don’t learn another love,
+that they carry the shape of one body through all their seasons.
+even the water grows quiet around their waiting.
+i carry that thought longer than i should.
+i think my love for you would wait the same way.`,
+
+"2026-01-22":`if pain ever learned your name,
+i’d step between before it could reach you.
+i’d let it settle into me instead,
+so you’d never have to learn its weight.`
 };
 
 function enter(){
@@ -262,30 +299,30 @@ function home(){
 
 function render(){
   calendar.innerHTML="";
-  monthTitle.textContent=months[month]+" "+year;
+  monthTitle.textContent = months[month]+" "+year;
 
-  const first=new Date(year,month,1);
-  const last=new Date(year,month+1,0);
+  const first = new Date(year,month,1);
+  const last = new Date(year,month+1,0);
 
-  for(let i=0;i<first.getDay();i++)calendar.appendChild(document.createElement("div"));
+  for(let i=0;i<first.getDay();i++) calendar.appendChild(document.createElement("div"));
 
-  for(let d=1;d<=last.getDate();d++){
-    const date=new Date(year,month,d);
-    const key=`${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const cell=document.createElement("div");
+  for(let d=1; d<=last.getDate(); d++){
+    const date = new Date(year,month,d);
+    const key = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const cell = document.createElement("div");
     cell.className="day";
 
-    if(month===3 && d===11)cell.classList.add("birthday");
+    if(month===3 && d===11) cell.classList.add("birthday");
 
-    cell.innerHTML=`<div class="day-number">${d}</div>`;
-    const heart=document.createElement("div");
+    cell.innerHTML = `<div class="day-number">${d}</div>`;
+    const heart = document.createElement("div");
     heart.className="heart-btn";
     heart.textContent="♡";
 
-    if(date<=today && messages[key]){
+    if(date <= today && messages[key]){
       heart.classList.add("clickable");
-      heart.onclick=()=>openNote(messages[key]);
-    }else{
+      heart.onclick = () => openNote(messages[key]);
+    } else {
       heart.classList.add("locked");
     }
 
@@ -295,10 +332,10 @@ function render(){
 }
 
 function openNote(text){
-  noteText.textContent=text;
+  noteText.textContent = text;
   note.style.display="flex";
   burst();
-  heartTimer=setInterval(burst,2400);
+  heartTimer = setInterval(burst,2000);
 }
 
 function closeNote(){
@@ -307,24 +344,24 @@ function closeNote(){
 }
 
 function burst(){
-  const r=document.querySelector(".note-card").getBoundingClientRect();
-  for(let i=0;i<14;i++){
+  const r = noteText.getBoundingClientRect();
+  for(let i=0;i<18;i++){
     setTimeout(()=>{
       const h=document.createElement("div");
       h.className="heart";
       h.textContent="♡";
       h.style.left=r.left+Math.random()*r.width+"px";
       h.style.top=r.top+Math.random()*r.height+"px";
-      h.style.fontSize=10+Math.random()*8+"px";
+      h.style.fontSize=10+Math.random()*9+"px";
       h.style.animationDuration=6+Math.random()*3+"s";
       document.body.appendChild(h);
       setTimeout(()=>h.remove(),9000);
-    },i*140);
+    },i*120);
   }
 }
 
-function prev(){if(month>0){month--;render()}}
-function next(){if(month<11){month++;render()}}
+function prev(){ if(month>0){ month--; render(); } }
+function next(){ if(month<11){ month++; render(); } }
 </script>
 
 </body>
